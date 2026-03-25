@@ -5,6 +5,7 @@ import torch
 import joblib
 import xgboost as xgb
 from transformers import AutoTokenizer, AutoModel
+from pathlib import Path
 
 # --- Initialize FastAPI ---
 app = FastAPI(title="Twitter Bot Detector API (Manual Mode)", version="2.0")
@@ -29,6 +30,10 @@ app.add_middleware(
 
 
 # --- Load all assets safely ---
+
+BASE_DIR= Path(__file__).resolve().parent
+Scalar_model_path=BASE_DIR / "models"/"scaler.pkl"
+Xgboost_path=BASE_DIR / "models"/"xgboost_bot_detector.json"
 try:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"⚡ Using device: {device}")
@@ -37,9 +42,9 @@ try:
     model = AutoModel.from_pretrained("distilbert-base-uncased").to(device)
     model.eval()
 
-    scaler = joblib.load("D:\\TwitterBotDetector2\\models\\scaler.pkl")
+    scaler = joblib.load(Scalar_model_path)
     booster = xgb.Booster()
-    booster.load_model("D:\\TwitterBotDetector2\\models\\xgboost_bot_detector.json")
+    booster.load_model(Xgboost_path)
 
     print("✅ Model, tokenizer, and scaler loaded successfully!")
 
